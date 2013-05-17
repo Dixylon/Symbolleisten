@@ -6,7 +6,7 @@
 #include <WinAPI.au3>
 
 if not FileExists(@AppDataDir & "\Symbolleiste") then
-	ShellExecute("G:\Symbolleisten\_Programm\Symbolleiste.exe")
+	ShellExecute(@ScriptDir & "\Symbolleiste.exe")
 	exit
 endif	
 
@@ -16,7 +16,7 @@ if not @error then
 
 	if $data[0] > 0 then		
 		for $j = 1 to $data[0]
-			ShellExecute("G:\Symbolleisten\_Programm\Symbolleiste.exe",$data[$j])
+			ShellExecute(@ScriptDir & "\Symbolleiste.exe",$data[$j])
 		next	
 	EndIf	
 EndIf	
