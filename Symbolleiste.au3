@@ -209,7 +209,7 @@ Switch $nMsg
 	Case $GUI_EVENT_CLOSE
 		Exit
 	case $GUI_EVENT_SECONDARYUP
-		msgbox(1,"Rechtsklick","Rechtsklick")
+		shellexecute($Folder,"","","open")
 
 	case $GUI_EVENT_DROPPED
 		; cases:
