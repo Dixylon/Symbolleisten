@@ -213,7 +213,7 @@ Switch $nMsg
 
 	case $GUI_EVENT_DROPPED
 		; cases:
-		; Drive, File, Folder, LAN-Folder , Link on Folder, Link on Files, Link on LAN-Folder, Link on Webpage, Link on Drive
+		; Drive, File, Folder, LAN-Folder , Link on Folder, Link on Files, Link on LAN-Folder, Link on Webpage, Link on Drive, ClickOnce-Apps
 		; Legacy -> PIF-Datei
 		; multiple of those !
 		; -> much work to do!
@@ -270,7 +270,7 @@ Switch $nMsg
 		
 		_ArrayAdd($ListItemPtr,$ListView1_tmp)
 
-		ConsoleWrite($Newname & $LinkExt & @LF)
+		ConsoleWrite("1 "&$Newname & $LinkExt & @LF)
 		AddListViewIcon($ListView1_tmp,$Newname & $LinkExt)
 		
 	
@@ -278,7 +278,10 @@ Switch $nMsg
 WEnd
 
 Func AddListViewIcon($ListView1_tmp,$FileName)
-	    ConsoleWrite($FileName & @LF)
+	    ConsoleWrite("2 "&$FileName & @LF)
+		
+		local $Iconname=""
+		local $Iconindex=0
 	
 		while 1
 		if StringRight($FileName,3)<>"lnk" Then         ; wenn kein Shortcur
@@ -288,12 +291,31 @@ Func AddListViewIcon($ListView1_tmp,$FileName)
 				select
 					case StringRight($FileName,3)="url" 
 						$Iconname=IniRead($FileName,"InternetShortcut","IconFile","")
+						ConsoleWrite("7 "&$Iconindex & @LF)
+						ConsoleWrite("8 "&$FileName & @LF)
 						$Iconindex=IniRead($FileName,"InternetShortcut","IconIndex","1")
+						ConsoleWrite("6 "&$Iconindex & @LF)
 						
-						ConsoleWrite(stringmid($Iconname,2,2) & @LF)
+						ConsoleWrite("3 "&stringmid($Iconname,2,2) & @LF)
+						
+						if (not FileExists($Iconname)) and (stringmid($Iconname,2,2) = ":\") Then
+							$Iconname=""
+						endif	
 						
 						if stringmid($Iconname,2,2) = ":\" then ; local gespeichertes Icon
-							GUICtrlSetImage($ListView1_tmp, $Iconname,-$Iconindex-1,2)
+							ConsoleWrite("5 "&$Iconindex & @LF)
+							ConsoleWrite("8 "&$Iconname & @LF)
+							if not GUICtrlSetImage($ListView1_tmp, $Iconname,-$Iconindex-1,2) Then
+								$Symboldatei=_WinAPI_FindExecutable($FileName)
+									ConsoleWrite("4 "&$Symboldatei & @LF)
+								if $Symboldatei="" Then
+									GUICtrlSetImage($ListView1_tmp, "shell32.dll",0,2)
+								else	
+									if not GUICtrlSetImage($ListView1_tmp, $Symboldatei,0,2) Then
+										GUICtrlSetImage($ListView1_tmp, "shell32.dll",0,2)
+									endif	
+								endif	
+							endif	
 						else	
 							if $Iconname <> "" Then
 								
@@ -327,7 +349,7 @@ Func AddListViewIcon($ListView1_tmp,$FileName)
 						
 					case else
 						$Symboldatei=_WinAPI_FindExecutable($FileName)
-						ConsoleWrite($Symboldatei & @LF)
+						ConsoleWrite("4 "&$Symboldatei & @LF)
 						if $Symboldatei="" Then
 							GUICtrlSetImage($ListView1_tmp, "shell32.dll",0,2)
 						else	
