@@ -259,11 +259,13 @@ Switch $nMsg
 		
 		$Showname= $SplitPath[3] & $SplitPath[4]
 		
+		_ArrayAdd($ListItemName,$Showname)
+		
 		if StringRight($Showname,3)="lnk" or StringRight($Showname,3)="url"Then 
 			$Showname = StringLeft($Showname,Stringlen($Showname)-4)
 		endif	
 		
-		
+	
 		_ArrayAdd($ListItemName,$Showname)
 		
 		$ListView1_tmp = GUICtrlCreateListViewItem($Showname, $ListView1)
