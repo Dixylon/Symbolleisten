@@ -21,6 +21,7 @@ endif
 
 Local $Folder=""
 Local $IniSection=0
+local $FolderSize=0
 
 if $CmdLine[0]>1 Then
 	msgbox(1,"Error","zuviele Parameter")
@@ -112,7 +113,7 @@ Local $ListItemName[1]=[0]
 Local $ItemAnzahl
 
 
-OnAutoItExitRegister("OnSymbolleisteExit")
+
 
 $i=0
 $search=filefindfirstfile($Folder&"/*.*")
@@ -121,7 +122,7 @@ While 1
     If @error Then ExitLoop
     $i=$i+1
 WEnd
-ConsoleWrite($i)
+
 $boxhight = $i*17+17
 $boxwidth = 150
 $boxleft = (@DesktopWidth-$boxwidth)/2
@@ -162,10 +163,14 @@ if $box = "" Then
 endif		
 
 
+; Create Window
+
 $WinHandel = GUICreate($Folder, $boxwidth, $boxhight, $boxleft, $boxtop, BitOR($GUI_SS_DEFAULT_GUI,$WS_SIZEBOX,$WS_THICKFRAME), _
                       BitOR($WS_EX_ACCEPTFILES,$WS_EX_TOOLWINDOW))
 
 GUISetBkColor(0x464646)
+
+
 
 $ListView1 = GUICtrlCreateListView("", 0, 0, $boxwidth, $boxhight, BitOR($GUI_SS_DEFAULT_LISTVIEW,$LVS_SMALLICON), BitOR($WS_EX_ACCEPTFILES,$LVS_EX_TRACKSELECT))
 GUICtrlSetColor(-1, 0x000000)
@@ -192,7 +197,17 @@ for $i = 1 to $ListItemName[0]
 
 next
 
+
+
 GUISetState(@SW_SHOW)
+
+$FolderSize=DirGetSize($Folder,2)
+
+AdlibRegister("detectfolderchanges",1000)
+
+OnAutoItExitRegister("OnSymbolleisteExit")
+
+
 
 While 1
 
@@ -402,3 +417,34 @@ Func OnSymbolleisteExit()
 	
 EndFunc
 
+Func detectfolderchanges()
+	$newFolderSize=DirGetSize($Folder,2)
+	if $FolderSize<>$newFolderSize Then
+		$FolderSize=$newFolderSize
+		GUICtrlDelete($ListView1)
+		$ListView1 = GUICtrlCreateListView("", 0, 0, $boxwidth, $boxhight, BitOR($GUI_SS_DEFAULT_LISTVIEW,$LVS_SMALLICON), BitOR($WS_EX_ACCEPTFILES,$LVS_EX_TRACKSELECT))
+GUICtrlSetColor(-1, 0x000000)
+GUICtrlSetBkColor(-1, 0xEBEBEB)
+GUICtrlSetResizing(-1, $GUI_DOCKAUTO+$GUI_DOCKLEFT+$GUI_DOCKRIGHT+$GUI_DOCKTOP+$GUI_DOCKBOTTOM)
+GUICtrlSetState(-1, $GUI_DROPACCEPTED)
+
+
+$ListItemName=_FileListToArray($Folder)
+
+
+for $i = 1 to $ListItemName[0]
+	
+	$Showname = $ListItemName[$i]
+	if StringRight($Showname,3)="lnk" Then 
+		$Showname = StringLeft($Showname,Stringlen($Showname)-4)
+	endif
+	
+	$ListView1_tmp = GUICtrlCreateListViewItem($Showname, $ListView1)
+	_ArrayAdd($ListItemPtr,$ListView1_tmp)
+	$FileName=$Folder & "\" & $ListItemName[$i]
+
+	AddListViewIcon($ListView1_tmp,$FileName)
+
+next
+	EndIf	
+endfunc	
